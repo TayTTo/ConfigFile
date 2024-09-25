@@ -1,3 +1,6 @@
+set nocompatible
+"let g:lsp_diagnostics_enabled = 0
+let g:polyglot_disabled = ['autoindent']
 " Plugin
 call plug#begin()
 Plug 'prabirshrestha/vim-lsp'
@@ -7,6 +10,7 @@ Plug 'mattn/vim-lsp-settings'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
 
+Plug 'sheerun/vim-polyglot'
 Plug 'sainnhe/everforest'
 
 Plug 'mattn/emmet-vim'
@@ -22,9 +26,12 @@ let g:everforest_background = 'medium'
 " For better performance
 let g:everforest_better_performance = 1
 
+augroup CustomEverforestHighlighting
+    autocmd!
+    autocmd ColorScheme everforest call everforest#highlight('MatchParen', ['#2B3339', '235'], ['#E69875', '173'], 'bold')
+augroup END
+
 colorscheme everforest
-
-
 let g:everforest_cursor = 'blue'
 let g:everforest_colors_override = {'bg_visual': ['#CCE5FF', '255'], }
 set number relativenumber
@@ -56,52 +63,50 @@ let g:terminal_ansi_colors = [
 
 highlight Terminal guibg='#fdf6e3' guifg='#657b83'
 
-" Tweaks for browsing
+" tweaks for browsing
 let g:netrw_banner=0        " disable annoying banner
 let g:netrw_keepdir = 0
 let g:netrw_winsize = 30
 
-" Remove unnecessary GUI elements
+" remove unnecessary gui elements
 set guioptions-=m
 set guioptions-=T
 set guioptions-=r
 set guioptions-=l
 set guioptions-=L
 
-" Setting for moving lines
-nnoremap <A-j> :m .+1<CR>==
-nnoremap <A-k> :m .-2<CR>==
-inoremap <A-j> <Esc>:m .+1<CR>==gi
-inoremap <A-k> <Esc>:m .-2<CR>==gi
-vnoremap <A-j> :m '>+1<CR>gv=gv
-vnoremap <A-k> :m '<-2<CR>gv=gv
+" setting for moving lines
+nnoremap <a-j> :m .+1<cr>==
+nnoremap <a-k> :m .-2<cr>==
+inoremap <a-j> <esc>:m .+1<cr>==gi
+inoremap <a-k> <esc>:m .-2<cr>==gi
+vnoremap <a-j> :m '>+1<cr>gv=gv
+vnoremap <a-k> :m '<-2<cr>gv=gv
 
 set cursorline
+" setting for vim-lsp
+set nocompatible
 
-" Setting for vim-lsp
+command! EnableDiagnostics :call lsp#enable_diagnostics_for_buffer(bufnr('%'))
+command! DisableDiagnostics :call lsp#disable_diagnostics_for_buffer(bufnr('%'))
+augroup AutoDisableDiagnostics
+    autocmd!
+    autocmd BufRead,BufNewFile * :call lsp#disable_diagnostics_for_buffer(bufnr('%'))
+augroup END
+
 function! s:on_lsp_buffer_enabled() abort
-    setlocal omnifunc=lsp#complete
-    setlocal signcolumn=no
-    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
     nmap <buffer> gd <plug>(lsp-definition)
-    nmap <buffer> gs <plug>(lsp-document-symbol-search)
-    nmap <buffer> gS <plug>(lsp-workspace-symbol-search)
     nmap <buffer> gr <plug>(lsp-references)
-    nmap <buffer> gi <plug>(lsp-implementation)
-    nmap <buffer> gt <plug>(lsp-type-definition)
-    nmap <buffer> <leader>rn <plug>(lsp-rename)
-    nmap <buffer> [g <plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]g <plug>(lsp-next-diagnostic)
     nmap <buffer> K <plug>(lsp-hover)
-    nnoremap <buffer> <expr><c-f> lsp#scroll(+4)
-    nnoremap <buffer> <expr><c-d> lsp#scroll(-4)
-
-	let g:lsp_diagnostics_enalbled = 1
-	let g:lsp_diagnostics_virtual_text_enabled = 1
-	let g:lsp_format_sync_timeout = 1000
+	
+	let g:lsp_diagnostics_signs_insert_mode_enabled = 0
+	let g:lsp_diagnostics_highlights_insert_mode_enabled = 0
 	let g:lsp_diagnostics_float_cursor = 1
 	let g:lsp_diagnostics_echo_cursor = 1
+	let g:lsp_document_code_action_signs_enabled = 0
+	let g:lsp_diagnostics_virtual_text_enabled = 1
 	let g:lsp_completion_documentation_delay = 0
+	let g:lsp_diagnostics_float_insert_mode_enabled = 0
     autocmd! BufWritePre *.rs,*.go call execute('LspDocumentFormatSync')
     " refer to doc to add more commands
 endfunction
@@ -138,12 +143,8 @@ set ignorecase
 set smartcase
 set gp=git\ grep\ -n
 set laststatus=0
-set so=10 
 command! MyPlugClean    :set shell=cmd.exe shellcmdflag=/c noshellslash guioptions-=! <bar> noau PlugClean
 packadd! matchit
 command! CopyFilePath :let @+ = expand("%:p") "\<cr>"
 command! CopyDirPath :let @+ = expand("%:p:h") "\<cr>"
 command! CopyFileName :let @+ = expand("%:t") "\<cr>"
-":call lsp#disable_diagnostics_for_buffer(bufnr('%'))
-command! EnableDiagnostics :call lsp#enable_diagnostics_for_buffer(bufnr('%'))
-command! DisableDiagnostics :call lsp#disable_diagnostics_for_buffer(bufnr('%'))
