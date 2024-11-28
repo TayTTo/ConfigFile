@@ -9,6 +9,7 @@ Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'mattn/vim-lsp-settings'
 Plug 'hrsh7th/vim-vsnip'
 Plug 'hrsh7th/vim-vsnip-integ'
+Plug 'lervag/vimtex'
 
 Plug 'sheerun/vim-polyglot'
 Plug 'sainnhe/everforest'
@@ -66,7 +67,7 @@ highlight Terminal guibg='#fdf6e3' guifg='#657b83'
 " tweaks for browsing
 let g:netrw_banner=0        " disable annoying banner
 let g:netrw_keepdir = 0
-let g:netrw_winsize = 30
+let g:netrw_winsize = 20
 
 " remove unnecessary gui elements
 set guioptions-=m
@@ -95,6 +96,8 @@ augroup AutoDisableDiagnostics
 augroup END
 
 function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
     nmap <buffer> gd <plug>(lsp-definition)
     nmap <buffer> gr <plug>(lsp-references)
     nmap <buffer> K <plug>(lsp-hover)
@@ -135,6 +138,9 @@ inoremap <silent><expr> <TAB>
   \ asyncomplete#force_refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
+let g:vimtex_view_general_viewer = 'SumatraPDF'
+let g:vimtex_view_general_options
+                \ = '-reuse-instance -forward-search @tex @line @pdf'
 set autoindent
 set spell
 set is
@@ -148,3 +154,7 @@ packadd! matchit
 command! CopyFilePath :let @+ = expand("%:p") "\<cr>"
 command! CopyDirPath :let @+ = expand("%:p:h") "\<cr>"
 command! CopyFileName :let @+ = expand("%:t") "\<cr>"
+nnoremap cpf i#include<iostream><Esc>ousing namespace std;<Esc>o<CR>int main(){<Esc>o<Esc>oreturn 0;<Esc>o}<Esc>kki
+inoremap <c-q> <Esc>:Lex<cr>
+nnoremap <c-q> :Lex<cr>
+set scrolloff=5
